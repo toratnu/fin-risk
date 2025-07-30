@@ -1,33 +1,41 @@
-
-[
-  {
-    "id": "q1",
-    "text": "年齢について教えてください。",
-    "options": [
-      { "text": "20代", "score": 5 },
-      { "text": "30代-40代", "score": 4 },
-      { "text": "50代", "score": 3 },
-      { "text": "60代以上", "score": 2 }
-    ]
-  },
-  {
-    "id": "q2",
-    "text": "投資経験について最も近いものを選んでください。",
-    "options": [
-      { "text": "未経験", "score": 1 },
-      { "text": "1-3年未満", "score": 3 },
-      { "text": "3-5年未満", "score": 4 },
-      { "text": "5年以上", "score": 5 }
-    ]
-  },
-  {
-    "id": "q3",
-    "text": "市場が下落した際、どの程度の損失まで精神的に許容できますか？",
-    "options": [
-      { "text": "元本割れは避けたい", "score": 1 },
-      { "text": "10%までの下落", "score": 2 },
-      { "text": "20%までの下落", "score": 3 },
-      { "text": "30%以上の下落も許容する", "score": 5 }
-    ]
+{
+  "initialQuestionId": "q1",
+  "questions": {
+    "q1": {
+      "text": "年齢について教えてください。",
+      "options": [
+        { "text": "20代", "score": 5, "nextQuestionId": "q2" },
+        { "text": "30代-40代", "score": 4, "nextQuestionId": "q2" },
+        { "text": "50代", "score": 3, "nextQuestionId": "q2" },
+        { "text": "60代以上", "score": 2, "nextQuestionId": "q2" }
+      ]
+    },
+    "q2": {
+      "text": "投資経験について最も近いものを選んでください。",
+      "options": [
+        { "text": "未経験", "score": 1, "nextQuestionId": "q4" },
+        { "text": "1-3年未満", "score": 3, "nextQuestionId": "q3" },
+        { "text": "3-5年未満", "score": 4, "nextQuestionId": "q3" },
+        { "text": "5年以上", "score": 5, "nextQuestionId": "q3" }
+      ]
+    },
+    "q3": {
+      "text": "総資産のうち、投資に回している（または回したい）金額の割合はどれくらいですか？",
+      "options": [
+        { "text": "10%未満", "score": 2, "nextQuestionId": "q4" },
+        { "text": "10%-30%", "score": 3, "nextQuestionId": "q4" },
+        { "text": "30%-50%", "score": 4, "nextQuestionId": "q4" },
+        { "text": "50%以上", "score": 5, "nextQuestionId": "q4" }
+      ]
+    },
+    "q4": {
+      "text": "市場が下落した際、どの程度の損失まで精神的に許容できますか？",
+      "options": [
+        { "text": "元本割れは避けたい", "score": 1, "nextQuestionId": null },
+        { "text": "10%までの下落", "score": 2, "nextQuestionId": null },
+        { "text": "20%までの下落", "score": 3, "nextQuestionId": null },
+        { "text": "30%以上の下落も許容する", "score": 5, "nextQuestionId": null }
+      ]
+    }
   }
-]
+}

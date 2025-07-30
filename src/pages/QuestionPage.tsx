@@ -14,21 +14,27 @@ import {
   LinearProgress,
 } from '@mui/material';
 
-// 質問と選択肢の型定義
+// 型定義
 interface Option {
   text: string;
   score: number;
+  nextQuestionId: string | null;
 }
 
 interface Question {
-  id: string;
   text: string;
   options: Option[];
 }
 
+interface QuestionsData {
+  initialQuestionId: string;
+  questions: { [key: string]: Question };
+}
+
 const QuestionPage: React.FC = () => {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [questionsData, setQuestionsData] = useState<QuestionsData | null>(null);
+  const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]); // 質問IDの履歴
   const [answers, setAnswers] = useState<{ [key: string]: number }>({});
   const navigate = useNavigate();
 
@@ -36,55 +42,78 @@ const QuestionPage: React.FC = () => {
   useEffect(() => {
     fetch('/questions.json')
       .then((res) => res.json())
-      .then((data) => setQuestions(data))
+      .then((data: QuestionsData) => {
+        setQuestionsData(data);
+        setCurrentQuestionId(data.initialQuestionId);
+        setHistory([data.initialQuestionId]);
+      })
       .catch((err) => console.error("Failed to load questions:", err));
   }, []);
 
   // 回答を処理するハンドラ
   const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const questionId = questions[currentQuestionIndex].id;
+    if (!currentQuestionId || !questionsData) return;
+
     const score = Number(event.target.value);
-    setAnswers({ ...answers, [questionId]: score });
+    setAnswers({ ...answers, [currentQuestionId]: score });
   };
 
   // 「次へ」ボタンの処理
   const handleNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      // 最後の質問なら結果ページへ
-      navigate('/result', { state: { answers, questions } });
+    if (!currentQuestionId || !questionsData) return;
+
+    const currentAnswerScore = answers[currentQuestionId];
+    if (currentAnswerScore === undefined) return;
+
+    const currentQuestion = questionsData.questions[currentQuestionId];
+    const selectedOption = currentQuestion.options.find(opt => opt.score === currentAnswerScore);
+
+    if (selectedOption) {
+      const nextId = selectedOption.nextQuestionId;
+      if (nextId) {
+        setCurrentQuestionId(nextId);
+        setHistory([...history, nextId]);
+      } else {
+        // 診断終了
+        navigate('/result', { state: { answers } });
+      }
     }
   };
 
   // 「前へ」ボタンの処理
   const handleBack = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    if (history.length > 1) {
+      const newHistory = [...history];
+      newHistory.pop(); // 現在の質問を履歴から削除
+      const prevQuestionId = newHistory[newHistory.length - 1];
+      
+      setCurrentQuestionId(prevQuestionId);
+      setHistory(newHistory);
     }
   };
 
-  if (questions.length === 0) {
+  if (!questionsData || !currentQuestionId) {
     return <Container><Typography>質問を読み込んでいます...</Typography></Container>;
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const currentAnswer = answers[currentQuestion.id];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const currentQuestion = questionsData.questions[currentQuestionId];
+  const currentAnswer = answers[currentQuestionId];
+  const progress = (history.length / Object.keys(questionsData.questions).length) * 100; // おおよその進捗
 
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
       <Box sx={{ width: '100%', mb: 2 }}>
+        {/* プログレスバーは全体の質問数に対するおおよその進捗を示す */}
         <LinearProgress variant="determinate" value={progress} />
       </Box>
       <Typography variant="h5" component="h1" gutterBottom>
-        質問 {currentQuestionIndex + 1} / {questions.length}
+        質問 {history.length}
       </Typography>
       <FormControl component="fieldset" fullWidth margin="normal">
         <FormLabel component="legend" sx={{ fontSize: '1.2rem', mb: 2 }}>{currentQuestion.text}</FormLabel>
         <RadioGroup
           aria-label={currentQuestion.text}
-          name={currentQuestion.id}
+          name={currentQuestionId}
           value={currentAnswer || ''}
           onChange={handleAnswerChange}
         >
@@ -102,7 +131,7 @@ const QuestionPage: React.FC = () => {
         <Button
           variant="outlined"
           onClick={handleBack}
-          disabled={currentQuestionIndex === 0}
+          disabled={history.length <= 1}
         >
           前へ
         </Button>
@@ -112,7 +141,7 @@ const QuestionPage: React.FC = () => {
           onClick={handleNext}
           disabled={currentAnswer === undefined}
         >
-          {currentQuestionIndex < questions.length - 1 ? '次へ' : '結果を見る'}
+          次へ
         </Button>
       </Box>
     </Container>

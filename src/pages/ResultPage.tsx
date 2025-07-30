@@ -10,8 +10,8 @@ import {
   Alert,
 } from '@mui/material';
 
-// 質問と回答の型定義（QuestionPageと共通）
-interface AnswerState {
+// 質問ページから渡されるstateの型
+interface LocationState {
   answers: { [key: string]: number };
 }
 
@@ -22,15 +22,15 @@ interface ResultType {
   advice: string;
 }
 
-// スコアに基づいて診断結果を決定する
+// スコアに基づいて診断結果を決定するロジック（スコアの閾値は調整が必要かもしれません）
 const getResultType = (totalScore: number): ResultType => {
-  if (totalScore <= 5) {
+  if (totalScore <= 7) { // 閾値を調整
     return {
       name: '保守的タイプ',
       description: '安定性を最優先し、リスクを極力避けたいと考えるタイプです。元本割れのリスクに対して非常に慎重です。',
       advice: '個人向け国債や預貯金、安定性の高い債券ファンドなどが中心のポートフォリオが考えられます。',
     };
-  } else if (totalScore <= 10) {
+  } else if (totalScore <= 12) { // 閾値を調整
     return {
       name: '安定成長タイプ',
       description: '安定性を重視しつつも、ある程度のリターンを期待するバランスの取れたタイプです。市場の変動にはやや敏感です。',
@@ -47,9 +47,9 @@ const getResultType = (totalScore: number): ResultType => {
 
 const ResultPage: React.FC = () => {
   const location = useLocation();
-  const state = location.state as AnswerState | null;
+  const state = location.state as LocationState | null;
 
-  if (!state || !state.answers) {
+  if (!state || !state.answers || Object.keys(state.answers).length === 0) {
     return (
       <Container maxWidth="md" style={{ marginTop: '2rem', textAlign: 'center' }}>
         <Alert severity="error" sx={{ mb: 3 }}>
