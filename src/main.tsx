@@ -13,7 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
+      <BrowserRouter basename="/fin-risk/">
         <Routes>
           <Route path="/" element={<TopPage />} />
           <Route path="/questions" element={<QuestionPage />} />
