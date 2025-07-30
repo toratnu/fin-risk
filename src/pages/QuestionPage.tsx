@@ -52,7 +52,7 @@ const QuestionPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/questions.json')
+    fetch(`${import.meta.env.BASE_URL}questions.json`)
       .then((res) => res.json())
       .then((data: QuestionsData) => {
         setQuestionsData(data);
