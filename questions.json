@@ -1,0 +1,57 @@
+{
+  "initialQuestionId": "q1",
+  "questions": {
+    "q1": {
+      "text": "年齢について教えてください。",
+      "options": [
+        { "text": "20代", "score": 5, "radarScore": { "積極性": 5, "経験値": 1 }, "nextQuestionId": "q2" },
+        { "text": "30代-40代", "score": 4, "radarScore": { "積極性": 4, "経験値": 2 }, "nextQuestionId": "q2" },
+        { "text": "50代", "score": 3, "radarScore": { "積極性": 3, "経験値": 3 }, "nextQuestionId": "q2" },
+        { "text": "60代以上", "score": 2, "radarScore": { "積極性": 2, "経験値": 4 }, "nextQuestionId": "q2" }
+      ]
+    },
+    "q2": {
+      "text": "投資経験について最も近いものを選んでください。",
+      "options": [
+        { "text": "未経験", "score": 1, "radarScore": { "経験値": 1, "安定性": 5 }, "nextQuestionId": "q4" },
+        { "text": "1-3年未満", "score": 3, "radarScore": { "経験値": 3, "安定性": 3 }, "nextQuestionId": "q3" },
+        { "text": "3-5年未満", "score": 4, "radarScore": { "経験値": 4, "安定性": 2 }, "nextQuestionId": "q3" },
+        { "text": "5年以上", "score": 5, "radarScore": { "経験値": 5, "安定性": 1 }, "nextQuestionId": "q3" }
+      ]
+    },
+    "q3": {
+      "text": "総資産のうち、投資に回している（または回したい）金額の割合はどれくらいですか？",
+      "options": [
+        { "text": "10%未満", "score": 2, "radarScore": { "収益性": 2, "積極性": 2 }, "nextQuestionId": "q4" },
+        { "text": "10%-30%", "score": 3, "radarScore": { "収益性": 3, "積極性": 3 }, "nextQuestionId": "q4" },
+        { "text": "30%-50%", "score": 4, "radarScore": { "収益性": 4, "積極性": 4 }, "nextQuestionId": "q4" },
+        { "text": "50%以上", "score": 5, "radarScore": { "収益性": 5, "積極性": 5 }, "nextQuestionId": "q4" }
+      ]
+    },
+    "q4": {
+      "text": "市場が下落した際、どの程度の損失まで精神的に許容できますか？",
+      "options": [
+        { "text": "元本割れは避けたい", "score": 1, "radarScore": { "安定性": 5, "収益性": 1 }, "nextQuestionId": "q5" },
+        { "text": "10%までの下落", "score": 2, "radarScore": { "安定性": 4, "収益性": 2 }, "nextQuestionId": "q5" },
+        { "text": "20%までの下落", "score": 3, "radarScore": { "安定性": 3, "収益性": 3 }, "nextQuestionId": "q5" },
+        { "text": "30%以上の下落も許容する", "score": 5, "radarScore": { "安定性": 1, "収益性": 5 }, "nextQuestionId": "q5" }
+      ]
+    },
+    "q5": {
+      "text": "『長期・積立・分散』投資の主なメリットとして、最も適切で”ない”ものはどれですか？",
+      "options": [
+        { "text": "時間を味方につけて複利の効果を得やすくなる", "score": 0, "radarScore": { "金融リテラシー": 1 }, "nextQuestionId": "q6" },
+        { "text": "購入価格が平準化され、高値掴みのリスクを抑えられる", "score": 0, "radarScore": { "金融リテラシー": 1 }, "nextQuestionId": "q6" },
+        { "text": "必ず元本が保証され、市場が暴落しても資産が減らない", "score": 3, "radarScore": { "金融リテラシー": 5 }, "nextQuestionId": "q6" },
+        { "text": "投資先を分けることで、特定資産の価格変動リスクを緩和できる", "score": 0, "radarScore": { "金融リテラシー": 1 }, "nextQuestionId": "q6" }
+      ]
+    },
+    "q6": {
+      "text": "あなたは100万円の投資で、1年後に2つの可能性があります。どちらを選びますか？",
+      "options": [
+        { "text": "確実に105万円になる（リターン5万円）", "score": 1, "radarScore": { "合理性": 2, "安定性": 2 }, "nextQuestionId": null },
+        { "text": "50%の確率で112万円になるが、50%の確率で100万円のまま（期待リターン6万円）", "score": 3, "radarScore": { "合理性": 5, "積極性": 2 }, "nextQuestionId": null }
+      ]
+    }
+  }
+}
