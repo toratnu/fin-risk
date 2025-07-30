@@ -12,12 +12,18 @@ import {
   FormLabel,
   Box,
   LinearProgress,
+  Fade,
 } from '@mui/material';
 
 // 型定義
+interface RadarScore {
+  [key: string]: number;
+}
+
 interface Option {
   text: string;
   score: number;
+  radarScore: RadarScore;
   nextQuestionId: string | null;
 }
 
@@ -31,14 +37,20 @@ interface QuestionsData {
   questions: { [key: string]: Question };
 }
 
+// 回答の型
+interface Answer {
+  score: number;
+  radarScore: RadarScore;
+}
+
 const QuestionPage: React.FC = () => {
   const [questionsData, setQuestionsData] = useState<QuestionsData | null>(null);
   const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
-  const [history, setHistory] = useState<string[]>([]); // 質問IDの履歴
-  const [answers, setAnswers] = useState<{ [key: string]: number }>({});
+  const [history, setHistory] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<{ [key: string]: Answer }>({});
+  const [maxQuestions, setMaxQuestions] = useState(0);
   const navigate = useNavigate();
 
-  // JSONファイルから質問を読み込む
   useEffect(() => {
     fetch('/questions.json')
       .then((res) => res.json())
@@ -46,27 +58,41 @@ const QuestionPage: React.FC = () => {
         setQuestionsData(data);
         setCurrentQuestionId(data.initialQuestionId);
         setHistory([data.initialQuestionId]);
+        // 最大質問数を計算（おおよその進捗表示のため）
+        setMaxQuestions(Object.keys(data.questions).length);
       })
       .catch((err) => console.error("Failed to load questions:", err));
   }, []);
 
-  // 回答を処理するハンドラ
   const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!currentQuestionId || !questionsData) return;
 
-    const score = Number(event.target.value);
-    setAnswers({ ...answers, [currentQuestionId]: score });
+    const question = questionsData.questions[currentQuestionId];
+    const selectedOption = question.options.find(
+      (opt) => opt.text === event.target.value
+    );
+
+    if (selectedOption) {
+      setAnswers({
+        ...answers,
+        [currentQuestionId]: {
+          score: selectedOption.score,
+          radarScore: selectedOption.radarScore,
+        },
+      });
+    }
   };
 
-  // 「次へ」ボタンの処理
   const handleNext = () => {
     if (!currentQuestionId || !questionsData) return;
 
-    const currentAnswerScore = answers[currentQuestionId];
-    if (currentAnswerScore === undefined) return;
+    const currentAnswer = answers[currentQuestionId];
+    if (!currentAnswer) return;
 
     const currentQuestion = questionsData.questions[currentQuestionId];
-    const selectedOption = currentQuestion.options.find(opt => opt.score === currentAnswerScore);
+    const selectedOption = currentQuestion.options.find(
+      (opt) => opt.score === currentAnswer.score
+    );
 
     if (selectedOption) {
       const nextId = selectedOption.nextQuestionId;
@@ -74,19 +100,16 @@ const QuestionPage: React.FC = () => {
         setCurrentQuestionId(nextId);
         setHistory([...history, nextId]);
       } else {
-        // 診断終了
         navigate('/result', { state: { answers } });
       }
     }
   };
 
-  // 「前へ」ボタンの処理
   const handleBack = () => {
     if (history.length > 1) {
       const newHistory = [...history];
-      newHistory.pop(); // 現在の質問を履歴から削除
+      newHistory.pop();
       const prevQuestionId = newHistory[newHistory.length - 1];
-      
       setCurrentQuestionId(prevQuestionId);
       setHistory(newHistory);
     }
@@ -97,37 +120,41 @@ const QuestionPage: React.FC = () => {
   }
 
   const currentQuestion = questionsData.questions[currentQuestionId];
-  const currentAnswer = answers[currentQuestionId];
-  const progress = (history.length / Object.keys(questionsData.questions).length) * 100; // おおよその進捗
+  const currentAnswerData = answers[currentQuestionId];
+  const progress = maxQuestions > 0 ? (history.length / maxQuestions) * 100 : 0;
 
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
-      <Box sx={{ width: '100%', mb: 2 }}>
-        {/* プログレスバーは全体の質問数に対するおおよその進捗を示す */}
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 1 }}>
+          質問 {history.length} / {maxQuestions}
+        </Typography>
         <LinearProgress variant="determinate" value={progress} />
       </Box>
-      <Typography variant="h5" component="h1" gutterBottom>
-        質問 {history.length}
-      </Typography>
-      <FormControl component="fieldset" fullWidth margin="normal">
-        <FormLabel component="legend" sx={{ fontSize: '1.2rem', mb: 2 }}>{currentQuestion.text}</FormLabel>
-        <RadioGroup
-          aria-label={currentQuestion.text}
-          name={currentQuestionId}
-          value={currentAnswer || ''}
-          onChange={handleAnswerChange}
-        >
-          {currentQuestion.options.map((option) => (
-            <FormControlLabel
-              key={option.text}
-              value={option.score}
-              control={<Radio />}
-              label={option.text}
-            />
-          ))}
-        </RadioGroup>
-      </FormControl>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+      <Fade in={true} timeout={500}>
+        <FormControl component="fieldset" fullWidth margin="normal">
+          <FormLabel component="legend" sx={{ fontSize: '1.3rem', mb: 2, fontWeight: 'bold' }}>
+            {currentQuestion.text}
+          </FormLabel>
+          <RadioGroup
+            aria-label={currentQuestion.text}
+            name={currentQuestionId}
+            value={currentQuestion.options.find(opt => opt.score === currentAnswerData?.score)?.text || ''}
+            onChange={handleAnswerChange}
+          >
+            {currentQuestion.options.map((option) => (
+              <FormControlLabel
+                key={option.text}
+                value={option.text} // valueをtextに変更してハンドラを修正
+                control={<Radio />}
+                label={option.text}
+                sx={{ mb: 1, border: '1px solid #ddd', borderRadius: 2, p: 1, m: 0.5 }}
+              />
+            ))}
+          </RadioGroup>
+        </FormControl>
+      </Fade>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
         <Button
           variant="outlined"
           onClick={handleBack}
@@ -139,7 +166,7 @@ const QuestionPage: React.FC = () => {
           variant="contained"
           color="primary"
           onClick={handleNext}
-          disabled={currentAnswer === undefined}
+          disabled={currentAnswerData === undefined}
         >
           次へ
         </Button>
