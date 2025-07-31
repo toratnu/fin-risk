@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name_ja: GitHub Pagesへのデプロイ
+      - name: GitHub Pagesへのデプロイ
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
